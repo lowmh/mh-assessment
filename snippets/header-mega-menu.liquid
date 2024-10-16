@@ -1,0 +1,128 @@
+{% comment %}
+  Renders a megamenu for the header.
+
+  Usage:
+  {% render 'header-mega-menu' %}
+{% endcomment %}
+
+<nav class="header__inline-menu">
+  <ul class="list-menu list-menu--inline" role="list">
+    {%- for link in section.settings.menu.links -%}
+      <li>
+        {%- if link.links != blank -%}
+          <header-menu>
+            <details id="Details-HeaderMenu-{{ forloop.index }}" class="mega-menu">
+              <div class="mega-menu-connector"><holder></holder></div>
+              <summary
+                id="HeaderMenu-{{ link.handle }}"
+                class="header__menu-item list-menu__item link focus-inset"
+              >
+                <span
+                  {%- if link.child_active %}
+                    class="header__active-menu-item"
+                  {% endif %}
+                >
+                  {{- link.title | escape -}}
+                </span>
+                {% comment %}{{- 'icon-caret.svg' | inline_asset_content -}}{% endcomment %}
+              </summary>
+              <div
+                id="MegaMenu-Content-{{ forloop.index }}"
+                class="mega-menu__content color-{{ section.settings.menu_color_scheme }} gradient motion-reduce global-settings-popup"
+                tabindex="-1"
+              >
+                <div class="page-width flex flex-row">
+                  <ul
+                    class="mega-menu__list flex-1{% if link.levels == 1 %} mega-menu__list--condensed{% endif %}"
+                    role="list"
+                  >
+                    {%- for childlink in link.links -%}
+                      <li>
+                        <a
+                          id="HeaderMenu-{{ link.handle }}-{{ childlink.handle }}"
+                          href="{{ childlink.url }}"
+                          class="mega-menu__link mega-menu__link--level-2 link{% if childlink.current %} mega-menu__link--active{% endif %}"
+                          {% if childlink.current %}
+                            aria-current="page"
+                          {% endif %}
+                        >
+                          {{ childlink.title | escape }}
+                        </a>
+                        {%- if childlink.links != blank -%}
+                          <ul class="list-unstyled" role="list">
+                            {%- for grandchildlink in childlink.links -%}
+                              <li>
+                                <a
+                                  id="HeaderMenu-{{ link.handle }}-{{ childlink.handle }}-{{ grandchildlink.handle }}"
+                                  href="{{ grandchildlink.url }}"
+                                  class="mega-menu__link link{% if grandchildlink.current %} mega-menu__link--active{% endif %}"
+                                  {% if grandchildlink.current %}
+                                    aria-current="page"
+                                  {% endif %}
+                                >
+                                  {{ grandchildlink.title | escape }}
+                                </a>
+                              </li>
+                            {%- endfor -%}
+                          </ul>
+                        {%- endif -%}
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                  {% for block in section.blocks %}
+                    {% case block.type %}
+                      {% when 'new' %}
+                        {% if block.settings.menu == link.title
+                          or block.settings.image
+                          and block.settings.subtitle
+                          and block.setings.title
+                        %}
+                          <a
+                            href="{{ block.settings.url }}"
+                            class="w-[250px] h-[250px] bg-gray-100 relative object-cover"
+                          >
+                            <div class="bg-white px-6 py-4 absolute bottom-0 left-0">
+                              <p class="uppercase text-sm">{{ block.settings.subtitle }}</p>
+                              <p class="text-2xl font-semibold leading-tight">{{ block.settings.title }}</p>
+                            </div>
+                            <img
+                              src="{{ block.settings.image | image_url }}"
+                              alt="Test Product D - Quiksilver Malaysia"
+                              srcset="
+                                {% if block.settings.image.width >= 352 %}{{ block.settings.image | image_url: width: 352 }} 352w,{% endif %},
+                                {{ block.settings.image | image_url }} {{ block.settings.image.width }}w
+                              "
+                              width="500"
+                              height="500"
+                              class="object-cover w-full h-full"
+                            >
+                          </a>
+                        {% endif %}
+                    {% endcase %}
+                  {% endfor %}
+                </div>
+              </div>
+            </details>
+          </header-menu>
+        {%- else -%}
+          <a
+            id="HeaderMenu-{{ link.handle }}"
+            href="{{ link.url }}"
+            class="header__menu-item list-menu__item link link--text focus-inset"
+            {% if link.current %}
+              aria-current="page"
+            {% endif %}
+          >
+            <span
+              {%- if link.current %}
+                class="header__active-menu-item"
+              {% endif %}
+            >
+              {{- link.title | escape -}}
+            </span>
+          </a>
+        {%- endif -%}
+      </li>
+    {%- endfor -%}
+  </ul>
+</nav>
